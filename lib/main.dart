@@ -88,6 +88,7 @@ class _AppViewState extends State<AppView> {
                   devtools.log(shouldLogout.toString());
                   if (shouldLogout) {
                     await FirebaseAuth.instance.signOut();
+                    if (!context.mounted) return;
                     Navigator.of(
                       context,
                     ).pushNamedAndRemoveUntil(loginRoute, (route) => false);
