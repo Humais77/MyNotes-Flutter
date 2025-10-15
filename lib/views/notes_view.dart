@@ -3,14 +3,14 @@ import 'package:my_app/constants/routes.dart';
 import 'package:my_app/enums/menu_action.dart';
 import 'package:my_app/services/auth/auth_service.dart';
 
-class AppView extends StatefulWidget {
-  const AppView({super.key});
+class NotesView extends StatefulWidget {
+  const NotesView({super.key});
 
   @override
-  State<AppView> createState() => _AppViewState();
+  State<NotesView> createState() => _NotesViewState();
 }
 
-class _AppViewState extends State<AppView> {
+class _NotesViewState extends State<NotesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

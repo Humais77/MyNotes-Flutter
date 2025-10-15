@@ -61,7 +61,7 @@ class _LoginViewState extends State<LoginView> {
                   if (!context.mounted) return;
                   Navigator.of(
                     context,
-                  ).pushNamedAndRemoveUntil(appViewRoute, (route) => false);
+                  ).pushNamedAndRemoveUntil(notesViewRoute, (route) => false);
                 } else {
                   if (!context.mounted) return;
                   Navigator.of(
