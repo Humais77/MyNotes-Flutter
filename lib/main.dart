@@ -48,10 +48,12 @@ class HomePage extends StatelessWidget {
             }
 
           default:
-            return Center(
-              child: Text(
-                "Loading...",
-                style: TextStyle(fontSize: 39, color: Colors.blue),
+            return Scaffold(
+              body: Center(
+                child: Text(
+                  "Loading...",
+                  style: TextStyle(fontSize: 39, color: Colors.blue),
+                ),
               ),
             );
         }
