@@ -7,7 +7,7 @@ import 'package:my_app/views/login_view.dart';
 import 'package:my_app/views/register_view.dart';
 import 'package:my_app/views/verify_email.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MaterialApp(

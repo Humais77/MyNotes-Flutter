@@ -203,6 +203,7 @@ class NotesService {
       final dbPath = join(docsPath.path, dbName);
       final db = await openDatabase(dbPath);
       _db = db;
+
       await db.execute(createUserTable);
       await db.execute(createNoteTable);
       await _cacheNotes();
@@ -271,7 +272,7 @@ class DatabaseNote {
   int get hashCode => id.hashCode;
 }
 
-const dbName = 'DB.db';
+const dbName = 'Flutter_DB.db';
 const noteTable = 'note';
 const userTable = 'user';
 const idColumn = 'id';
