@@ -36,7 +36,7 @@ class NotesService {
 
   Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
     await _ensureDbIsOpen();
-    final db = getDatabaseOrThrow();
+    final db = _getDatabaseOrThrow();
     final dbUser = await getUser(email: owner.email);
     if (dbUser != owner) {
       throw CouldNotFindUser();
@@ -60,7 +60,7 @@ class NotesService {
 
   Future<void> deteleNote({required int id}) async {
     await _ensureDbIsOpen();
-    final db = getDatabaseOrThrow();
+    final db = _getDatabaseOrThrow();
     final deletedCount = await db.delete(
       noteTable,
       where: 'id = ?',
@@ -77,7 +77,7 @@ class NotesService {
 
   Future<int> deleteAllNotes() async {
     await _ensureDbIsOpen();
-    final db = getDatabaseOrThrow();
+    final db = _getDatabaseOrThrow();
     final deletedCount = await db.delete(noteTable);
     _notes = [];
     _notesStreamController.add(_notes);
@@ -85,7 +85,7 @@ class NotesService {
   }
 
   Future<DatabaseNote> getNote({required int id}) async {
-    final db = getDatabaseOrThrow();
+    final db = _getDatabaseOrThrow();
     final notes = await db.query(
       noteTable,
       limit: 1,
@@ -105,7 +105,7 @@ class NotesService {
 
   Future<Iterable<DatabaseNote>> getAllNotes() async {
     await _ensureDbIsOpen();
-    final db = getDatabaseOrThrow();
+    final db = _getDatabaseOrThrow();
     final notes = await db.query(noteTable);
     return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
   }
@@ -115,7 +115,7 @@ class NotesService {
     required String text,
   }) async {
     await _ensureDbIsOpen();
-    final db = getDatabaseOrThrow();
+    final db = _getDatabaseOrThrow();
     await getNote(id: note.id);
     final updatesCount = await db.update(noteTable, {
       textColumn: text,
@@ -134,7 +134,7 @@ class NotesService {
 
   Future<void> deleteUser({required String email}) async {
     await _ensureDbIsOpen();
-    final db = getDatabaseOrThrow();
+    final db = _getDatabaseOrThrow();
     final deletedCount = await db.delete(
       userTable,
       where: 'email = ?',
@@ -147,7 +147,7 @@ class NotesService {
 
   Future<DatabaseUser> createUser({required String email}) async {
     await _ensureDbIsOpen();
-    final db = getDatabaseOrThrow();
+    final db = _getDatabaseOrThrow();
     final results = await db.query(
       userTable,
       limit: 1,
@@ -165,7 +165,7 @@ class NotesService {
 
   Future<DatabaseUser> getUser({required String email}) async {
     await _ensureDbIsOpen();
-    final db = getDatabaseOrThrow();
+    final db = _getDatabaseOrThrow();
     final results = await db.query(
       userTable,
       limit: 1,
@@ -179,7 +179,7 @@ class NotesService {
     }
   }
 
-  Database getDatabaseOrThrow() {
+  Database _getDatabaseOrThrow() {
     final db = _db;
     if (db == null) {
       throw DatabaseIsNotOpen();
@@ -191,7 +191,9 @@ class NotesService {
   Future<void> _ensureDbIsOpen() async {
     try {
       await open();
-    } on DatabaseAlreadyOpenException {}
+    } on DatabaseAlreadyOpenException {
+      //empty
+    }
   }
 
   Future<void> open() async {
@@ -233,7 +235,7 @@ class DatabaseUser {
     : id = map[idColumn] as int,
       email = map[emailColumn] as String;
   @override
-  String toString() => 'Person, Id = $id, email = $email';
+  String toString() => 'Person, ID = $id, email = $email';
 
   @override
   bool operator ==(covariant DatabaseUser other) => id == other.id;

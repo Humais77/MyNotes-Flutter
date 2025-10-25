@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/services/auth/auth_service.dart';
 import 'package:my_app/services/crud/notes_service.dart';
+import 'package:my_app/services/auth/auth_service.dart';
+import 'package:my_app/services/crud/notes_service.dart';
 
 class NewNotesView extends StatefulWidget {
   const NewNotesView({super.key});
@@ -16,9 +18,9 @@ class _NewNotesViewState extends State<NewNotesView> {
 
   @override
   void initState() {
-    super.initState();
     _notesService = NotesService();
     _textController = TextEditingController();
+    super.initState();
   }
 
   void _textControllerListener() async {
@@ -76,30 +78,24 @@ class _NewNotesViewState extends State<NewNotesView> {
         title: const Text("New Note"),
         backgroundColor: Colors.blue,
       ),
+
       body: FutureBuilder(
         future: createNewNote(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              if (snapshot.hasData) {
-                _note = snapshot.data as DatabaseNote;
-                _setupTextControllerListener();
-                return TextField(
-                  controller: _textController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    hintText: 'Start typing your note...',
-                    contentPadding: EdgeInsets.all(16),
-                  ),
-                );
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else {
-                return const Center(child: CircularProgressIndicator());
-              }
+              _note = snapshot.data as DatabaseNote;
+              _setupTextControllerListener();
+              return TextField(
+                controller: _textController,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  hintText: "Start typing your note...",
+                ),
+              );
             default:
-              return const Center(child: CircularProgressIndicator());
+              return const CircularProgressIndicator();
           }
         },
       ),
