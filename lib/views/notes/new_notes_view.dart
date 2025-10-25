@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/services/auth/auth_service.dart';
 import 'package:my_app/services/crud/notes_service.dart';
-import 'package:my_app/services/auth/auth_service.dart';
-import 'package:my_app/services/crud/notes_service.dart';
 
 class NewNotesView extends StatefulWidget {
   const NewNotesView({super.key});
