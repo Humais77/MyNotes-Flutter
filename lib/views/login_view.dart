@@ -94,8 +94,6 @@ class _LoginViewState extends State<LoginView> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Please enter your password";
-                      } else if (value.length < 7) {
-                        return "Password must be at least 7 characters long";
                       }
                       return null;
                     },
