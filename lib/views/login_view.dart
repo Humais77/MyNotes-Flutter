@@ -15,11 +15,13 @@ class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _email;
   late final TextEditingController _password;
+  bool isPasswordVisible = false;
 
   @override
   void initState() {
     _email = TextEditingController();
     _password = TextEditingController();
+    isPasswordVisible = false;
     super.initState();
   }
 
@@ -76,11 +78,23 @@ class _LoginViewState extends State<LoginView> {
                   const SizedBox(height: 20),
                   TextFormField(
                     controller: _password,
-                    obscureText: true,
+                    obscureText: !isPasswordVisible,
                     enableSuggestions: false,
                     autocorrect: false,
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.lock, color: Colors.blue),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isPasswordVisible = !isPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          isPasswordVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                      ),
                       hintText: "Enter your password",
                       labelText: "Password",
                       border: OutlineInputBorder(
@@ -91,6 +105,8 @@ class _LoginViewState extends State<LoginView> {
                         vertical: 14,
                       ),
                     ),
+                    keyboardType: TextInputType.visiblePassword,
+                    textInputAction: TextInputAction.done,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Please enter your password";
