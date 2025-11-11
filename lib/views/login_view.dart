@@ -4,6 +4,7 @@ import 'package:my_app/constants/routes.dart';
 import 'package:my_app/services/auth/auth_exceptions.dart';
 import 'package:my_app/services/auth/bloc/auth_bloc.dart';
 import 'package:my_app/services/auth/bloc/auth_event.dart';
+import 'package:my_app/services/auth/bloc/auth_state.dart';
 import 'package:my_app/utilites/dialogs/error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -117,37 +118,44 @@ class _LoginViewState extends State<LoginView> {
                     },
                   ),
                   const SizedBox(height: 30),
-                  TextButton(
-                    onPressed: () async {
-                      if (!_formKey.currentState!.validate()) return;
-                      final email = _email.text;
-                      final password = _password.text;
-                      try {
+                  BlocListener<AuthBloc, AuthState>(
+                    listener: (context, state) async {
+                      if (state is AuthStateLoggedout) {
+                        if (state.exception is UserNotFoundAuthException ||
+                            state.exception is WrongPasswordAuthException) {
+                          await showErrorDialog(context, "Invalid Credentials");
+                        } else if (state is GenericAuthException) {
+                          await showErrorDialog(
+                            context,
+                            "Authentication Error",
+                          );
+                        }
+                      }
+                    },
+                    child: TextButton(
+                      onPressed: () async {
+                        if (!_formKey.currentState!.validate()) return;
+                        final email = _email.text;
+                        final password = _password.text;
                         context.read<AuthBloc>().add(
                           AuthEventLogIn(email, password),
                         );
-                      } on UserNotFoundAuthException {
-                        await showErrorDialog(context, "Invalid Credentials");
-                      } on WrongPasswordAuthException {
-                        await showErrorDialog(context, "Invalid Credentials");
-                      } on GenericAuthException {
-                        await showErrorDialog(context, "Authentication Error");
-                      }
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Times New Romain',
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Times New Romain',
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
