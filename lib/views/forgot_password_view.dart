@@ -1,36 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_app/services/auth/auth_exceptions.dart';
 import 'package:my_app/services/auth/bloc/auth_bloc.dart';
 import 'package:my_app/services/auth/bloc/auth_event.dart';
 import 'package:my_app/services/auth/bloc/auth_state.dart';
 import 'package:my_app/utilites/dialogs/error_dialog.dart';
+import 'package:my_app/utilites/dialogs/password_reset_email_sent_dialog.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class ForgotPasswordView extends StatefulWidget {
+  const ForgotPasswordView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<ForgotPasswordView> createState() => _ForgotPasswordViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _email;
-  late final TextEditingController _password;
-  bool isPasswordVisible = false;
+  late final TextEditingController _emailController;
 
   @override
   void initState() {
-    _email = TextEditingController();
-    _password = TextEditingController();
-    isPasswordVisible = false;
+    _emailController = TextEditingController();
     super.initState();
   }
 
   @override
   void dispose() {
-    _email.dispose();
-    _password.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -38,18 +33,22 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
-        if (state is AuthStateLoggedOut) {
-          if (state.exception is UserNotFoundAuthException ||
-              state.exception is WrongPasswordAuthException) {
-            await showErrorDialog(context, "Invalid Credentials");
-          } else if (state is GenericAuthException) {
-            await showErrorDialog(context, "Authentication Error");
+        if (state is AuthStateForgotPassword) {
+          if (state.hasSentEmail) {
+            _emailController.clear();
+            await showPasswordResetSendDialog(context);
+          }
+          if (state.exception != null) {
+            await showErrorDialog(
+              context,
+              "An error occurred while attempting to reset your password.",
+            );
           }
         }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Login"),
+          title: const Text("Forgot Password"),
           backgroundColor: Colors.blue,
         ),
         body: Center(
@@ -65,8 +64,14 @@ class _LoginViewState extends State<LoginView> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const Text(
+                      "Please enter your email to receive a password reset link.",
+                      style: TextStyle(fontSize: 18.0),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
                     TextFormField(
-                      controller: _email,
+                      controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.email, color: Colors.blue),
@@ -91,53 +96,14 @@ class _LoginViewState extends State<LoginView> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: _password,
-                      obscureText: !isPasswordVisible,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock, color: Colors.blue),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              isPasswordVisible = !isPasswordVisible;
-                            });
-                          },
-                          icon: Icon(
-                            isPasswordVisible
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                        ),
-                        hintText: "Enter your password",
-                        labelText: "Password",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
-                      keyboardType: TextInputType.visiblePassword,
-                      textInputAction: TextInputAction.done,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter your password";
-                        }
-                        return null;
-                      },
-                    ),
                     const SizedBox(height: 30),
                     TextButton(
-                      onPressed: () async {
+                      onPressed: () {
                         if (!_formKey.currentState!.validate()) return;
-                        final email = _email.text;
-                        final password = _password.text;
+
+                        final email = _emailController.text;
                         context.read<AuthBloc>().add(
-                          AuthEventLogIn(email, password),
+                          AuthEventForgotPassword(email: email),
                         );
                       },
                       style: TextButton.styleFrom(
@@ -148,10 +114,9 @@ class _LoginViewState extends State<LoginView> {
                         ),
                       ),
                       child: const Text(
-                        'Login',
+                        "Send Password Reset Link",
                         style: TextStyle(
                           fontSize: 16,
-                          fontFamily: 'Times New Romain',
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -160,19 +125,9 @@ class _LoginViewState extends State<LoginView> {
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: () {
-                        context.read<AuthBloc>().add(
-                          const AuthEventShouldRegister(),
-                        );
+                        context.read<AuthBloc>().add(const AuthEventLogOut());
                       },
-                      child: const Text("Not registered yet? Register here!"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        context.read<AuthBloc>().add(
-                          const AuthEventForgotPassword(),
-                        );
-                      },
-                      child: const Text("Forgot Password?"),
+                      child: const Text("Back to Login"),
                     ),
                   ],
                 ),
